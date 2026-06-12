@@ -1,0 +1,21 @@
+{% extends base_template_name %}
+{% load i18n %}
+{% block content %}
+<section class="velcro velcro-form">
+  {% block velcro_messages %}{% include "velcro/partial/messages.html" %}{% endblock %}
+  <h1>
+    {% if object %}{% blocktranslate with name=object_verbose_name %}Edit {{ name }}{% endblocktranslate %}
+    {% else %}{% blocktranslate with name=object_verbose_name %}New {{ name }}{% endblocktranslate %}{% endif %}
+  </h1>
+  {% partialdef form inline %}
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_div }}
+    {% if request.GET.next %}<input type="hidden" name="next" value="{{ request.GET.next }}">{% endif %}
+    <button type="submit" class="velcro-action velcro-action-save">{% translate "Save" %}</button>
+    {% if object and detail_view_url %}<a class="velcro-cancel" href="{{ detail_view_url }}">{% translate "Cancel" %}</a>
+    {% elif list_view_url %}<a class="velcro-cancel" href="{{ list_view_url }}">{% translate "Cancel" %}</a>{% endif %}
+  </form>
+  {% endpartialdef %}
+</section>
+{% endblock %}

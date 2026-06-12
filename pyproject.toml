@@ -1,0 +1,59 @@
+[build-system]
+requires = ["uv_build>=0.9.8,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "velcro"
+version = "0.1.0"
+description = "A bunch of useful django stuff, hopefully"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Ismir Kullolli", email = "ismir@ikunix.com" }
+]
+keywords = ["django", "crud", "class-based-views", "htmx"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Django",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0",
+]
+[dependency-groups]
+dev = [
+    "django-filter",
+    "pytest",
+    "pytest-cov",
+    "pytest-django",
+    "pytest-sugar",
+    "ruff",
+]
+
+[project.urls]
+Repository = "https://github.com/girapa/velcro"
+Issues = "https://github.com/girapa/velcro/issues"
+
+[project.optional-dependencies]
+filter = ["django-filter>=25.0"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+addopts = "--cov=velcro --cov-report=term-missing"
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

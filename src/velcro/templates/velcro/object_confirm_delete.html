@@ -1,0 +1,14 @@
+{% extends base_template_name %}
+{% load i18n %}
+{% block content %}
+<section class="velcro velcro-confirm-delete">
+  {% block velcro_messages %}{% include "velcro/partial/messages.html" %}{% endblock %}
+  <h1>{% blocktranslate with name=object_verbose_name %}Delete {{ name }}{% endblocktranslate %}</h1>
+  <p>{% blocktranslate with object=object %}Are you sure you want to delete "{{ object }}"? This cannot be undone.{% endblocktranslate %}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="velcro-action velcro-action-delete">{% translate "Confirm deletion" %}</button>
+    {% if detail_view_url %}<a class="velcro-cancel" href="{{ detail_view_url }}">{% translate "Cancel" %}</a>{% endif %}
+  </form>
+</section>
+{% endblock %}

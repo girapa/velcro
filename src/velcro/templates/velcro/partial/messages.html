@@ -1,0 +1,5 @@
+{% if messages %}
+<ul class="velcro-messages">
+  {% for message in messages %}<li class="velcro-message {{ message.tags }}">{{ message }}</li>{% endfor %}
+</ul>
+{% endif %}

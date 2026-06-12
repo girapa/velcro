@@ -1,0 +1,66 @@
+{% extends base_template_name %}
+{% load i18n %}
+{% block content %}
+<section class="velcro velcro-list">
+  {% block velcro_messages %}{% include "velcro/partial/messages.html" %}{% endblock %}
+  <header class="velcro-header">
+    <h1>{{ object_verbose_name_plural|capfirst }}</h1>
+    {% if create_view_url %}
+      <a class="velcro-action velcro-action-create" href="{{ create_view_url }}">{% blocktranslate with name=object_verbose_name %}New {{ name }}{% endblocktranslate %}</a>
+    {% endif %}
+  </header>
+  {% block velcro_search %}
+  {% if search_enabled %}
+  <form class="velcro-search" method="get" action="">
+    <input type="search" name="{{ search_param }}" value="{{ search_query }}" placeholder="{% translate 'Search' %}…">
+    <button type="submit">{% translate "Search" %}</button>
+  </form>
+  {% endif %}
+  {% endblock %}
+  {% block velcro_filters %}
+  {% if filterset %}
+  <form class="velcro-filters" method="get" action="">
+    {{ filterset.form.as_div }}
+    <button type="submit">{% translate "Filter" %}</button>
+  </form>
+  {% endif %}
+  {% endblock %}
+  {% partialdef table inline %}
+  {% block velcro_table %}
+  {% if object_table.rows %}
+    <table class="velcro-table">
+      <thead>
+        <tr>
+          {% for header in object_table.headers %}<th scope="col">{% if header.ordering %}<a class="velcro-sort {% if header.direction %}velcro-sort-{{ header.direction }}{% endif %}" href="{% querystring ordering=header.ordering %}">{{ header.label }}</a>{% if header.direction == "asc" %} ▲{% elif header.direction == "desc" %} ▼{% endif %}{% else %}{{ header.label }}{% endif %}</th>{% endfor %}
+          <th scope="col"><span class="velcro-visually-hidden">{% translate "Actions" %}</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in object_table.rows %}
+        <tr>
+          {% for cell in row.cells %}
+            <td>{% if cell.url %}<a href="{{ cell.url }}">{{ cell.value }}</a>{% else %}{{ cell.value }}{% endif %}</td>
+          {% endfor %}
+          <td class="velcro-row-actions">
+            {% if row.detail_url %}<a href="{{ row.detail_url }}">{% translate "View" %}</a>{% endif %}
+            {% if row.update_url %}<a href="{{ row.update_url }}">{% translate "Edit" %}</a>{% endif %}
+            {% if row.delete_url %}<a href="{{ row.delete_url }}">{% translate "Delete" %}</a>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="velcro-empty">{% blocktranslate with name=object_verbose_name_plural %}No {{ name }} yet.{% endblocktranslate %}</p>
+  {% endif %}
+  {% endblock %}
+  {% if is_paginated %}
+  <nav class="velcro-pagination" aria-label="{% translate 'Pagination' %}">
+    {% if page_obj.has_previous %}<a href="{% querystring page=page_obj.previous_page_number %}">{% translate "Previous" %}</a>{% endif %}
+    <span class="velcro-page-count">{% blocktranslate with number=page_obj.number total=page_obj.paginator.num_pages %}Page {{ number }} of {{ total }}{% endblocktranslate %}</span>
+    {% if page_obj.has_next %}<a href="{% querystring page=page_obj.next_page_number %}">{% translate "Next" %}</a>{% endif %}
+  </nav>
+  {% endif %}
+  {% endpartialdef %}
+</section>
+{% endblock %}

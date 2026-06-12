@@ -1,0 +1,23 @@
+{% extends base_template_name %}
+{% load i18n %}
+{% block content %}
+<article class="velcro velcro-detail">
+  {% block velcro_messages %}{% include "velcro/partial/messages.html" %}{% endblock %}
+  <header class="velcro-header">
+    <h1>{{ object }}</h1>
+    <nav class="velcro-object-actions">
+      {% if update_view_url %}<a class="velcro-action" href="{{ update_view_url }}">{% translate "Edit" %}</a>{% endif %}
+      {% if delete_view_url %}<a class="velcro-action velcro-action-delete" href="{{ delete_view_url }}">{% translate "Delete" %}</a>{% endif %}
+    </nav>
+  </header>
+  {% block velcro_fields %}
+  <dl class="velcro-fields">
+    {% for cell in object_fields %}
+      <dt>{{ cell.label }}</dt>
+      <dd>{% if cell.url %}<a href="{{ cell.url }}">{{ cell.value }}</a>{% else %}{{ cell.value }}{% endif %}</dd>
+    {% endfor %}
+  </dl>
+  {% endblock %}
+  {% if list_view_url %}<p><a href="{{ list_view_url }}">{% blocktranslate with name=object_verbose_name_plural %}Back to {{ name }}{% endblocktranslate %}</a></p>{% endif %}
+</article>
+{% endblock %}
