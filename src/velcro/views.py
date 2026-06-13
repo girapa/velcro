@@ -726,10 +726,19 @@ class CRUDView(View):
 
     @classproperty
     def url_name_prefix(cls) -> str:  # noqa: N805
-        """Prefix for generated URL *names*. Defaults to url_base, but is
-        independently overridable (Neapolitan issue #67) so two views can
-        share a path shape with distinct reverse names, or vice versa."""
-        return cls.url_base
+        """Prefix for generated URL *names*.
+        Defaults to model_name but is independently overridable so two views can
+        share a path shape with distinct reverse names, or vice versa.
+
+        Example:
+            model_name = Book
+            path(..., name="book-*")
+        """
+        if cls.model is None:
+            raise ImproperlyConfigured(
+                f"{cls.__name__} must define 'model' or set 'url_base' explicitly to generate URLs."
+            )
+        return cls.model._meta.model_name
 
     @classonlymethod
     def _lookup_fragment(cls) -> str:
