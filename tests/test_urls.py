@@ -23,6 +23,10 @@ class RenamedCRUD(BookmarkCRUD):
     url_base = "links"
     url_name_prefix = "favourites"
 
+class RootMountedCRUD(BookmarkCRUD):
+    url_base = ""
+    url_name_prefix = "root-bookmark"
+
 
 class SlugLikeCRUD(BookmarkCRUD):
     """str converter on pk — would shadow static routes if unordered."""
@@ -65,6 +69,18 @@ class TestUrlGeneration:
             "bookmark-detail": "bookmarks/<int:pk>/",
             "bookmark-update": "bookmarks/<int:pk>/edit/",
             "bookmark-delete": "bookmarks/<int:pk>/delete/",
+        }
+
+    def test_empty_url_base_generates_relative_root_patterns(self):
+        urls = RootMountedCRUD.get_urls()
+        routes = {p.name: str(p.pattern) for p in urls}
+        assert routes == {
+            "root-bookmark-list": "",
+            "root-bookmark-create": "new/",
+            "root-bookmark-archived": "archived/",
+            "root-bookmark-detail": "<int:pk>/",
+            "root-bookmark-update": "<int:pk>/edit/",
+            "root-bookmark-delete": "<int:pk>/delete/",
         }
 
     def test_subset_by_name(self):

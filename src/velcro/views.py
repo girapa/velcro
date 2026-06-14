@@ -748,7 +748,9 @@ class CRUDView(View):
     @classonlymethod
     def _url_for(cls, act: Action) -> URLPattern:
         fragment = act.url_pattern.format(lookup=cls._lookup_fragment())
-        route = "/".join(part for part in (cls.url_base, fragment) if part) + "/"
+        route = "/".join(part for part in (cls.url_base, fragment) if part)
+        if route:
+            route += "/"
         return path(
             route,
             cls.as_view(action=act),
