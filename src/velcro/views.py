@@ -722,7 +722,7 @@ class CRUDView(View):
             raise ImproperlyConfigured(
                 f"{cls.__name__} must define 'model' or set 'url_base' explicitly to generate URLs."
             )
-        return cls.model._meta.model_name
+        return cls.model._meta.verbose_name_plural.replace(" ", "-")
 
     @classproperty
     def url_name_prefix(cls) -> str:  # noqa: N805

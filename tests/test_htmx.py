@@ -54,31 +54,31 @@ def client():
 
 class TestPartialRendering:
     def test_plain_request_gets_full_page(self, client, bookmark):
-        html = client.get("/bookmark/").content.decode()
+        html = client.get("/bookmarks/").content.decode()
         assert "<html>" in html and "<h1>" in html
 
     def test_htmx_request_gets_table_partial_only(self, client, bookmark):
-        response = client.get("/bookmark/", **HX)
+        response = client.get("/bookmarks/", **HX)
         html = response.content.decode()
         assert "<table" in html and "Example" in html
         assert "<html>" not in html and "<h1>" not in html
 
     def test_hx_push_url_set_on_list_partial(self, client, bookmark):
-        response = client.get("/bookmark/?q=x", **HX)
-        assert response.headers["HX-Push-Url"] == "/bookmark/?q=x"
+        response = client.get("/bookmarks/?q=x", **HX)
+        assert response.headers["HX-Push-Url"] == "/bookmarks/?q=x"
 
     def test_boosted_request_gets_full_page(self, client, bookmark):
-        response = client.get("/bookmark/", **HX, HTTP_HX_BOOSTED="true")
+        response = client.get("/bookmarks/", **HX, HTTP_HX_BOOSTED="true")
         assert "<html>" in response.content.decode()
         assert "HX-Push-Url" not in response.headers
 
     def test_form_partial(self, client, db):
-        html = client.get("/bookmark/new/", **HX).content.decode()
+        html = client.get("/bookmarks/new/", **HX).content.decode()
         assert '<form method="post"' in html
         assert "<html>" not in html
 
     def test_detail_has_no_partial_mapping_full_page(self, client, bookmark):
-        html = client.get(f"/bookmark/{bookmark.pk}/", **HX).content.decode()
+        html = client.get(f"/bookmarks/{bookmark.pk}/", **HX).content.decode()
         assert "<html>" in html
 
     def test_override_without_partial_falls_back_to_bundled(self, client, bookmark):
@@ -91,21 +91,21 @@ class TestPartialRendering:
 
 class TestMutationResponses:
     def test_create_returns_204_with_trigger(self, client, db):
-        response = client.post("/bookmark/new/", FORM, **HX)
+        response = client.post("/bookmarks/new/", FORM, **HX)
         assert response.status_code == 204
         payload = json.loads(response.headers["HX-Trigger"])
         new = Bookmark.objects.get(title="New")
         assert payload == {"bookmarkChanged": {"action": "create", "pk": new.pk}}
 
     def test_invalid_form_rerenders_form_partial(self, client, db):
-        response = client.post("/bookmark/new/", {"url": "bad", "title": ""}, **HX)
+        response = client.post("/bookmarks/new/", {"url": "bad", "title": ""}, **HX)
         html = response.content.decode()
         assert response.status_code == 200
         assert '<form method="post"' in html and "<html>" not in html
 
     def test_delete_returns_204_with_trigger(self, client, bookmark):
         pk = bookmark.pk
-        response = client.post(f"/bookmark/{pk}/delete/", **HX)
+        response = client.post(f"/bookmarks/{pk}/delete/", **HX)
         assert response.status_code == 204
         payload = json.loads(response.headers["HX-Trigger"])
         assert payload == {"bookmarkChanged": {"action": "delete", "pk": pk}}
@@ -116,5 +116,5 @@ class TestMutationResponses:
         assert response.status_code == 302
 
     def test_non_htmx_post_still_redirects(self, client, db):
-        response = client.post("/bookmark/new/", FORM)
+        response = client.post("/bookmarks/new/", FORM)
         assert response.status_code == 302

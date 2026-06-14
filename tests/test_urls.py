@@ -59,12 +59,12 @@ class TestUrlGeneration:
         urls = BookmarkCRUD.get_urls()
         routes = {p.name: str(p.pattern) for p in urls}
         assert routes == {
-            "bookmark-list": "bookmark/",
-            "bookmark-create": "bookmark/new/",
-            "bookmark-archived": "bookmark/archived/",
-            "bookmark-detail": "bookmark/<int:pk>/",
-            "bookmark-update": "bookmark/<int:pk>/edit/",
-            "bookmark-delete": "bookmark/<int:pk>/delete/",
+            "bookmark-list": "bookmarks/",
+            "bookmark-create": "bookmarks/new/",
+            "bookmark-archived": "bookmarks/archived/",
+            "bookmark-detail": "bookmarks/<int:pk>/",
+            "bookmark-update": "bookmarks/<int:pk>/edit/",
+            "bookmark-delete": "bookmarks/<int:pk>/delete/",
         }
 
     def test_subset_by_name(self):
@@ -96,44 +96,44 @@ class TestUrlGeneration:
 class TestNamespaceAwareReversing:
     def test_unnamespaced_default_success_urls(self, client, bookmark, db):
         response = client.post(
-            "/bookmark/new/",
+            "/bookmarks/new/",
             {"url": "https://a.example", "title": "A", "note": ""},
         )
         new = Bookmark.objects.get(title="A")
-        assert response.url == f"/bookmark/{new.pk}/"  # create -> detail
-        response = client.post(f"/bookmark/{new.pk}/delete/")
-        assert response.url == "/bookmark/"  # delete -> list
+        assert response.url == f"/bookmarks/{new.pk}/"  # create -> detail
+        response = client.post(f"/bookmarks/{new.pk}/delete/")
+        assert response.url == "/bookmarks/"  # delete -> list
 
     def test_namespaced_mount_redirects_within_namespace(self, client, db):
         response = client.post(
-            "/staff/bookmark/new/",
+            "/staff/bookmarks/new/",
             {"url": "https://b.example", "title": "B", "note": ""},
         )
         new = Bookmark.objects.get(title="B")
-        assert response.url == f"/staff/bookmark/{new.pk}/"
+        assert response.url == f"/staff/bookmarks/{new.pk}/"
 
     def test_same_view_mounted_twice_reverses_per_request(self, client, bookmark):
         # The exact failure mode of Neapolitan issue #16, doubled.
-        staff = client.get(f"/staff/bookmark/{bookmark.pk}/")
-        admin2 = client.get(f"/admin2/bookmark/{bookmark.pk}/")
-        assert staff.context["update_view_url"] == f"/staff/bookmark/{bookmark.pk}/edit/"
-        assert admin2.context["update_view_url"] == f"/admin2/bookmark/{bookmark.pk}/edit/"
+        staff = client.get(f"/staff/bookmarks/{bookmark.pk}/")
+        admin2 = client.get(f"/admin2/bookmarks/{bookmark.pk}/")
+        assert staff.context["update_view_url"] == f"/staff/bookmarks/{bookmark.pk}/edit/"
+        assert admin2.context["update_view_url"] == f"/admin2/bookmarks/{bookmark.pk}/edit/"
 
     def test_context_url_helpers(self, client, bookmark):
-        response = client.get(f"/bookmark/{bookmark.pk}/")
+        response = client.get(f"/bookmarks/{bookmark.pk}/")
         ctx = response.context
-        assert ctx["list_view_url"] == "/bookmark/"
-        assert ctx["create_view_url"] == "/bookmark/new/"
-        assert ctx["delete_view_url"] == f"/bookmark/{bookmark.pk}/delete/"
+        assert ctx["list_view_url"] == "/bookmarks/"
+        assert ctx["create_view_url"] == "/bookmarks/new/"
+        assert ctx["delete_view_url"] == f"/bookmarks/{bookmark.pk}/delete/"
 
     def test_maybe_reverse_returns_none_for_unrouted(self, client, bookmark):
         # 'detail' exists as an action but reverse for a bogus name is None.
-        response = client.get("/bookmark/")
+        response = client.get("/bookmarks/")
         view = response.context["view"]
         assert view.maybe_reverse("nonexistent") is None
 
     def test_explicit_url_namespace_attribute_wins(self, client, bookmark):
-        view_response = client.get(f"/admin2/bookmark/{bookmark.pk}/")
+        view_response = client.get(f"/admin2/bookmarks/{bookmark.pk}/")
         view = view_response.context["view"]
         view.url_namespace = "staff"
-        assert view.reverse("list") == "/staff/bookmark/"
+        assert view.reverse("list") == "/staff/bookmarks/"
